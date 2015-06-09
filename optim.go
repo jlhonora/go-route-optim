@@ -23,10 +23,14 @@ type Point struct {
 type Points []Point
 
 type Route struct {
-	Points       Points `json:"points"`
-	Start        Point  `json:"start"`
+	Points Points   `json:"points"`
+	Start  Waypoint `json:"start"`
+}
+
+type RouteProblem struct {
 	Costs        [][]float64
 	PointIndexes []int
+	Route        *Route
 }
 
 func OptimizeHandler(w http.ResponseWriter, request *http.Request) {
@@ -61,8 +65,9 @@ func EncodeRoute(route Route, w http.ResponseWriter) {
 func OptimizeRoute(route *Route) {
 	fmt.Printf("Optimizing route with %d elements\n", len(route.Points))
 	fmt.Printf("Starting distance: %f\n", route.TotalDistance())
-	route.Init()
-	OptimizeRouteMST(route)
+	var routeProblem RouteProblem
+	routeProblem.Init(*route)
+	OptimizeRouteMST(&routeProblem)
 	fmt.Println("Route: ", route)
 	fmt.Printf("Final distance: %f\n", route.TotalDistance())
 	fmt.Println("Done")

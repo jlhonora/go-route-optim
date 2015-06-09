@@ -16,13 +16,14 @@ type Graph struct {
 	Costs    [][]float64
 }
 
-func OptimizeRouteMST(route *Route) {
+func OptimizeRouteMST(routeProblem *RouteProblem) {
 	// The root of the tree is the closest to the start
+	var route = routeProblem.Route
 	_, startIndex := GetClosest(route.Points, route.Start)
 
 	route.Points.Swap(startIndex, len(route.Points)-1)
 
-	graph := BuildGraph(route)
+	graph := BuildGraph(routeProblem)
 
 	// Build tree
 	tree := BuildMST(graph)
@@ -39,14 +40,14 @@ func OptimizeRouteMST(route *Route) {
 }
 
 // Build graph for points
-func BuildGraph(route *Route) Graph {
+func BuildGraph(routeProblem *RouteProblem) Graph {
 	// Initialize the graph
 	var Graph Graph
-	Graph.Elements = route.Points
+	Graph.Elements = routeProblem.Route.Points
 
 	// TODO: Check if this is really necessary
 	// or if the matrix is already allocated
-	Graph.Costs = route.Costs
+	Graph.Costs = routeProblem.Costs
 
 	return Graph
 }

@@ -29,12 +29,12 @@ func (p *Point) Distance(p2 Point) float64 {
 }
 
 // TODO: Use interfaces for the points themselves
-func GetClosest(points []Point, point Point) (Point, int) {
+func GetClosest(points []Point, waypoint Waypoint) (Point, int) {
 	var bestDistance = math.MaxFloat64
 	var bestPoint Point
 	var bestIndex = 0
 	for idx, cand := range points {
-		var d = cand.Distance(point)
+		var d = cand.Waypoint.Distance(waypoint)
 		if d < bestDistance {
 			bestDistance = d
 			bestPoint = cand
@@ -49,29 +49,30 @@ func (r *Route) TotalDistance() float64 {
 	var lastPoint = r.Start
 	var totalDistance = 0.0
 	for _, p := range r.Points {
-		totalDistance += lastPoint.Distance(p)
-		lastPoint = p
+		totalDistance += lastPoint.Distance(p.Waypoint)
+		lastPoint = p.Waypoint
 	}
 	return totalDistance
 }
 
 // Build distance matrix and initialize
 // point indexes
-func (r *Route) Init() {
+func (rp *RouteProblem) Init(r Route) {
 	pointsLength := len(r.Points)
-	r.PointIndexes = make([]int, pointsLength)
-	r.Costs = make([][]float64, pointsLength)
+	rp.PointIndexes = make([]int, pointsLength)
+	rp.Costs = make([][]float64, pointsLength)
+	rp.Route = &r
 
 	// Build distance matrix
 	// Only build the upper diagonal
 	for i := 0; i < pointsLength; i++ {
-		r.Costs[i] = make([]float64, pointsLength)
-		r.PointIndexes[i] = r.Points[i].Slot
+		rp.Costs[i] = make([]float64, pointsLength)
+		rp.PointIndexes[i] = r.Points[i].Slot
 		for j := i; j < pointsLength; j++ {
 			if i == j {
-				r.Costs[i][j] = 0.0
+				rp.Costs[i][j] = 0.0
 			} else {
-				r.Costs[i][j] = r.Points[i].Distance(r.Points[j])
+				rp.Costs[i][j] = r.Points[i].Waypoint.Distance(r.Points[j].Waypoint)
 			}
 		}
 	}
@@ -79,7 +80,7 @@ func (r *Route) Init() {
 	// Reflect the lower diagonal
 	for i := 0; i < pointsLength; i++ {
 		for j := i; j < pointsLength; j++ {
-			r.Costs[j][i] = r.Costs[i][j]
+			rp.Costs[j][i] = rp.Costs[i][j]
 		}
 	}
 }

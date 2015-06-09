@@ -4,13 +4,15 @@ func OptimizeRouteGreedy(route *Route) {
 	var optimRoute = Route{}
 	optimRoute.Start = route.Start
 
-	var lastPoint = optimRoute.Start
+	var lastWaypoint = optimRoute.Start
+	var lastPoint Point
 
 	var count int
 	var closestIndex int
 
 	for len(route.Points) > 0 {
-		lastPoint, closestIndex = GetClosest(route.Points, lastPoint)
+		lastPoint, closestIndex = GetClosest(route.Points, lastWaypoint)
+		lastWaypoint = lastPoint.Waypoint
 		lastPoint.Slot = count
 		count = count + 1
 		optimRoute.Points = append(optimRoute.Points, lastPoint)
