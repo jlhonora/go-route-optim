@@ -6,15 +6,15 @@ import (
 )
 
 func OptimizeRouteGreedy(routeProblem *RouteProblem) {
-	var route = routeProblem.Route
-	var lastWaypoint = route.Start
-	var pointsLength = len(route.Points)
+	route := routeProblem.Route
+	lastWaypoint := route.Start
+	pointsLength := len(route.Points)
 	var closestIndex int
 
 	// Get a starting point
 	_, closestIndex = GetClosest(route.Points, lastWaypoint)
 
-	var pointIndexes = make([]int, pointsLength)
+	pointIndexes := make([]int, pointsLength)
 
 	// Initialize a map for remaining points to be
 	// included
@@ -28,17 +28,16 @@ func OptimizeRouteGreedy(routeProblem *RouteProblem) {
 	pointIndexes[0] = closestIndex
 
 	// Holds the count of added points
-	var count = 1
+	count := 1
 
 	// Last added point's index
-	var lastIndex = closestIndex
+	lastIndex := closestIndex
 
 	for count < pointsLength {
-		var bestValue = math.MaxFloat64
-		var bestIndex = -1
+		bestValue := math.MaxFloat64
+		bestIndex := -1
 		for key, _ := range remainingPoints {
-			var currentCost float64
-			currentCost = routeProblem.Costs[lastIndex][key]
+			var currentCost = routeProblem.Costs[lastIndex][key]
 			if currentCost < bestValue {
 				bestIndex = key
 				bestValue = currentCost
@@ -57,10 +56,7 @@ func OptimizeRouteGreedy(routeProblem *RouteProblem) {
 	}
 
 	// Reorder points
-	var newPoints = make([]Point, pointsLength)
 	for i := 0; i < pointsLength; i++ {
-		newPoints[i] = route.Points[pointIndexes[i]]
-		newPoints[i].Slot = i
+		route.Points[pointIndexes[i]].Slot = i
 	}
-	route.Points = newPoints
 }

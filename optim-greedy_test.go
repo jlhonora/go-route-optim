@@ -10,7 +10,7 @@ import (
 func TestOptimGreedy(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
-	var route = getMockRoute()
+	route := getMockRoute()
 	shufflePoints(route.Points)
 
 	fmt.Println("Route: ", route)
@@ -20,9 +20,9 @@ func TestOptimGreedy(t *testing.T) {
 	OptimizeRouteGreedy(&routeProblem)
 	fmt.Println("Optimized Route: ", route)
 
-	var routeOrdered = true
+	routeOrdered := true
 	for i := 0; i < len(route.Points); i++ {
-		if i != route.Points[i].Id {
+		if route.Points[i].Slot != route.Points[i].Id {
 			routeOrdered = false
 			break
 		}
@@ -44,7 +44,7 @@ func getMockRoute() Route {
 	waypoints = append(waypoints, Waypoint{Latitude: -33.4056, Longitude: -71.1371})
 
 	for i := 0; i < len(waypoints); i++ {
-		route.Points = append(route.Points, Point{Slot: i, Waypoint: waypoints[i], Id: i})
+		route.Points = append(route.Points, Point{Slot: rand.Intn(len(waypoints)), Waypoint: waypoints[i], Id: i})
 	}
 
 	return route
