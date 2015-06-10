@@ -60,6 +60,7 @@ func OptimizeRouteGreedy(routeProblem *RouteProblem) {
 	var newPoints = make([]Point, pointsLength)
 	for i := 0; i < pointsLength; i++ {
 		newPoints[i] = route.Points[pointIndexes[i]]
+		newPoints[i].Slot = i
 	}
 	route.Points = newPoints
 }
