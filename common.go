@@ -54,6 +54,7 @@ func GetClosest(points []Point, waypoint Waypoint) (Point, int) {
 func (r *Route) TotalDistance() float64 {
 	var lastPoint = r.Start
 	var totalDistance = 0.0
+	r.reorderBySlot()
 	for _, p := range r.Points {
 		totalDistance += lastPoint.Distance(p.Waypoint)
 		lastPoint = p.Waypoint
