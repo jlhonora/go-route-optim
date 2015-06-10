@@ -66,7 +66,7 @@ func OptimizeRoute(route *Route) {
 	fmt.Printf("Starting distance: %f\n", route.TotalDistance())
 	var routeProblem RouteProblem
 	routeProblem.Init(route)
-	OptimizeRouteMST(&routeProblem)
+	OptimizeRouteGreedy(&routeProblem)
 	fmt.Println("Route: ", route)
 	fmt.Printf("Final distance: %f\n", route.TotalDistance())
 	fmt.Println("Done")
