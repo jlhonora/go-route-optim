@@ -15,7 +15,10 @@ func TestOptimGreedy(t *testing.T) {
 
 	fmt.Println("Route: ", route)
 
-	OptimizeRouteGreedy(&route)
+	var routeProblem RouteProblem
+	routeProblem.Init(&route)
+	OptimizeRouteGreedy(&routeProblem)
+	fmt.Println("Optimized Route: ", route)
 
 	var routeOrdered = true
 	for i := 0; i < len(route.Points); i++ {

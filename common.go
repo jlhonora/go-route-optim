@@ -6,6 +6,12 @@ const (
 	EARTH_RADIUS = 6371
 )
 
+// A LinkedList to reorder routes
+type Node struct {
+	Next  *Node
+	Point *Point
+}
+
 // TODO: optimize for small distances
 func (p *Waypoint) Distance(p2 Waypoint) float64 {
 	dLat := (p2.Latitude - p.Latitude) * (math.Pi / 180.0)
@@ -57,17 +63,15 @@ func (r *Route) TotalDistance() float64 {
 
 // Build distance matrix and initialize
 // point indexes
-func (rp *RouteProblem) Init(r Route) {
+func (rp *RouteProblem) Init(r *Route) {
 	pointsLength := len(r.Points)
-	rp.PointIndexes = make([]int, pointsLength)
 	rp.Costs = make([][]float64, pointsLength)
-	rp.Route = &r
+	rp.Route = r
 
 	// Build distance matrix
 	// Only build the upper diagonal
 	for i := 0; i < pointsLength; i++ {
 		rp.Costs[i] = make([]float64, pointsLength)
-		rp.PointIndexes[i] = r.Points[i].Slot
 		for j := i; j < pointsLength; j++ {
 			if i == j {
 				rp.Costs[i][j] = 0.0
@@ -83,6 +87,72 @@ func (rp *RouteProblem) Init(r Route) {
 			rp.Costs[j][i] = rp.Costs[i][j]
 		}
 	}
+}
+
+func (route *Route) reorderBySlot() {
+	pointsLength := len(route.Points)
+
+	// First check if we should reorder
+	shouldReorder := false
+	for i := 0; i < pointsLength; i++ {
+		if route.Points[i].Slot != i {
+			shouldReorder = true
+			break
+		}
+	}
+
+	// If the route is ordered then just return
+	if !shouldReorder {
+		return
+	}
+
+	// Iterate over the points. There could be multiple
+	// points with the same slot, so we form a linked
+	// list of points for each slot
+	pointsNodes := make([]*Node, pointsLength)
+	for i := 0; i < pointsLength; i++ {
+		var point = &(route.Points[i])
+		var slot = point.Slot
+
+		// Assign this point to a new node
+		var node Node
+		node.Point = point
+
+		// If there's already an element for
+		// this slot then move it up the list
+		if pointsNodes[slot] != nil {
+			node.Next = pointsNodes[slot]
+		}
+
+		// This new node is the first element of
+		// the list
+		pointsNodes[slot] = &node
+	}
+
+	// Flatten the list
+	// Make a new slice for the points
+	newPoints := make([]Point, pointsLength)
+	index := 0
+	for i := 0; i < pointsLength; i++ {
+		// If this node is nil just skip it
+		if pointsNodes[i] == nil {
+			continue
+		}
+		node := pointsNodes[i]
+		for {
+			if node == nil {
+				break
+			}
+			// Assign the point to the list
+			newPoints[index] = *(node.Point)
+
+			// Move to the next element
+			node = node.Next
+
+			index++
+		}
+	}
+	route.Points = newPoints
 }
 
 func (slice Points) Swap(i, j int) {
