@@ -13,20 +13,19 @@ func OptimizeRouteSimulatedAnnealing(routeProblem *RouteProblem) {
 	lastWaypoint := route.Start
 
 	// Get a starting point
-	closestPoint, closestIndex := GetClosest(route.Points, lastWaypoint)
+	_, closestIndex := GetClosest(route.Points, lastWaypoint)
 
 	var proposedRoute Route
 
-	// Exclude the closest point from the
-	// calculation
-	route.Points = append(route.Points[:closestIndex],
-		route.Points[closestIndex+1:]...)
+	// The closest point will always be the first one
+	route.Points[closestIndex], route.Points[0] = route.Points[0], route.Points[closestIndex]
 	pointsLength := len(route.Points)
+
+	proposedRoute.Points = route.Points
 
 	currentTemp := STARTING_TEMP
 	for currentTemp > 1 {
 		shuffle(pointsLength, route, &proposedRoute)
-
 		currentDistance := route.TotalDistance()
 		proposedDistance := proposedRoute.TotalDistance()
 
@@ -36,8 +35,7 @@ func OptimizeRouteSimulatedAnnealing(routeProblem *RouteProblem) {
 		currentTemp *= (1 - COOLING_RATE)
 	}
 
-	// Add the first point back
-	route.Points = append([]Point{closestPoint}, route.Points...)
+	// Assign slots by order
 	for i := 0; i < len(route.Points); i++ {
 		route.Points[i].Slot = i
 	}
@@ -45,11 +43,12 @@ func OptimizeRouteSimulatedAnnealing(routeProblem *RouteProblem) {
 
 func shuffle(pointsLength int, route *Route, shuffledRoute *Route) {
 	shuffledRoute.Points = route.Points
-	index_a := rand.Intn(pointsLength)
-	index_b := rand.Intn(pointsLength)
+	// The first point never moves
+	index_a := rand.Intn(pointsLength-1) + 1
+	index_b := rand.Intn(pointsLength-1) + 1
 
-	shuffledRoute.Points[index_a], shuffledRoute.Points[index_b] =
-		shuffledRoute.Points[index_b], shuffledRoute.Points[index_a]
+	shuffledRoute.Points[index_a], shuffledRoute.Points[index_b] = shuffledRoute.Points[index_b], shuffledRoute.Points[index_a]
+	shuffledRoute.Points[index_a].Slot, shuffledRoute.Points[index_b].Slot = shuffledRoute.Points[index_b].Slot, shuffledRoute.Points[index_a].Slot
 }
 
 func shouldAcceptRoute(temperature float64, currentDistance float64, proposedDistance float64) bool {

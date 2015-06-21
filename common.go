@@ -23,9 +23,9 @@ func (p *Waypoint) Distance(p2 Waypoint) float64 {
 	a1 := (dLat * dLat)
 	a2 := (dLon * dLon) * math.Cos(lat1) * math.Cos(lat2)
 
-	a := (a1 + a2) / 4
+	a := (a1 + a2) / 4.0
 
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	c := 2.0 * math.Atan2(math.Sqrt(a), math.Sqrt(1.0-a))
 
 	return EARTH_RADIUS * c
 }
@@ -39,12 +39,13 @@ func GetClosest(points []Point, waypoint Waypoint) (Point, int) {
 	var bestDistance = math.MaxFloat64
 	var bestPoint Point
 	var bestIndex = 0
-	for idx, cand := range points {
+	for i := 0; i < len(points); i++ {
+		cand := points[i]
 		var d = cand.Waypoint.Distance(waypoint)
 		if d < bestDistance {
 			bestDistance = d
 			bestPoint = cand
-			bestIndex = idx
+			bestIndex = i
 		}
 	}
 
@@ -65,6 +66,7 @@ func (r *Route) TotalDistance() float64 {
 // Build distance matrix and initialize
 // point indexes
 func (rp *RouteProblem) Init(r *Route) {
+	r.reorderBySlot()
 	pointsLength := len(r.Points)
 	rp.Costs = make([][]float64, pointsLength)
 	rp.Route = r
@@ -146,6 +148,9 @@ func (route *Route) reorderBySlot() {
 			}
 			// Assign the point to the list
 			newPoints[index] = *(node.Point)
+
+			// Correct the slot
+			newPoints[index].Slot = index
 
 			// Move to the next element
 			node = node.Next
