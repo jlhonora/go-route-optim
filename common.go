@@ -13,7 +13,7 @@ type Node struct {
 }
 
 // TODO: optimize for small distances
-func (p *Waypoint) Distance(p2 Waypoint) float64 {
+func (p Waypoint) Distance(p2 Waypoint) float64 {
 	dLat := (p2.Latitude - p.Latitude) * (math.Pi / 180.0)
 	dLon := (p2.Longitude - p.Longitude) * (math.Pi / 180.0)
 
@@ -30,7 +30,7 @@ func (p *Waypoint) Distance(p2 Waypoint) float64 {
 	return EARTH_RADIUS * c
 }
 
-func (p *Point) Distance(p2 Point) float64 {
+func (p Point) Distance(p2 Point) float64 {
 	return p.Waypoint.Distance(p2.Waypoint)
 }
 
@@ -56,7 +56,8 @@ func (r *Route) TotalDistance() float64 {
 	var lastPoint = r.Start
 	var totalDistance = 0.0
 	r.reorderBySlot()
-	for _, p := range r.Points {
+	for i := 0; i < len(r.Points); i++ {
+		p := r.Points[i]
 		totalDistance += lastPoint.Distance(p.Waypoint)
 		lastPoint = p.Waypoint
 	}
@@ -135,6 +136,9 @@ func (route *Route) reorderBySlot() {
 	// Flatten the list
 	// Make a new slice for the points
 	newPoints := make([]Point, pointsLength)
+
+	// Holds the count of inserted points in the
+	// array
 	index := 0
 	for i := 0; i < pointsLength; i++ {
 		// If this node is nil just skip it
@@ -142,11 +146,13 @@ func (route *Route) reorderBySlot() {
 			continue
 		}
 		node := pointsNodes[i]
+
+		// Insert every node in the linked list
 		for {
 			if node == nil {
 				break
 			}
-			// Assign the point to the list
+			// Insert the point in the array
 			newPoints[index] = *(node.Point)
 
 			// Correct the slot
@@ -163,4 +169,10 @@ func (route *Route) reorderBySlot() {
 
 func (slice Points) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
+}
+
+func clonePoints(pointsLength int, src Route, dst *Route) {
+	for i := 0; i < pointsLength; i++ {
+		dst.Points[i] = src.Points[i]
+	}
 }
