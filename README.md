@@ -17,7 +17,8 @@ Here's an input example:
             "waypoint": {
                 "latitude": -12.082021,
                 "longitude": -77.058512
-            }
+            },
+            "slot": 0
         },
         {
             "id": 124,
@@ -25,6 +26,7 @@ Here's an input example:
                 "latitude": -12.071229,
                 "longitude": -77.039371
             }
+            "slot": 1
         },
         {
             "id": 125,
@@ -32,6 +34,7 @@ Here's an input example:
                 "latitude": -12.085998,
                 "longitude": -77.027968
             },
+            "slot": 2
         }
     ],
     "start": {
