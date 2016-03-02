@@ -1,0 +1,15 @@
+#!/usr/bin/env octave
+S = load('stats.txt');
+
+f = figure;
+set(f, 'visible', 'off');
+
+subplot (2, 1, 1)
+plot(S(:,1), S(:,4), S(:,1), S(:,3));
+
+subplot (2, 1, 2)
+plot(S(:,1), S(:,2));
+
+output_file = 'stats.png';
+print(output_file, '-dpng');
+system(cstrcat('open ', output_file));
